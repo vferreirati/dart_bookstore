@@ -33,14 +33,8 @@ void main() async {
   final userHandler = UserHandler(UserService(UserRepository(connection)));
 
   final publicRouter = Router();
-  publicRouter.post(
-    '/users',
-    (req) => safeEndpoint(req, userHandler.createUser),
-  );
-  publicRouter.post(
-    '/login',
-    (req) => safeEndpoint(req, userHandler.login),
-  );
+  publicRouter.post('/users', userHandler.createUser);
+  publicRouter.post('/login', userHandler.login);
   publicRouter.get(
     '/ping',
     (Request request) => Response.ok(
@@ -50,13 +44,14 @@ void main() async {
   );
 
   final authenticatedRouter = Router();
-  authenticatedRouter.get(
-    '/users',
-    (req) => safeEndpoint(req, userHandler.getUsers),
-  );
+  authenticatedRouter.get('/users', userHandler.getUsers);
 
-  final publicHandler = const Pipeline().addHandler(publicRouter);
+  final publicHandler = const Pipeline()
+      .addMiddleware(errorHandlingMiddleware())
+      .addHandler(publicRouter);
+
   final authenticatedHandler = const Pipeline()
+      .addMiddleware(errorHandlingMiddleware())
       .addMiddleware(jwtMiddleware(secret))
       .addHandler(authenticatedRouter);
 
@@ -82,26 +77,27 @@ Future<Connection> connectToDatabase() async {
   );
 }
 
-Future<Response> safeEndpoint(
-  Request request,
-  Handler innerHandler,
-) async {
-  try {
-    return await innerHandler(request);
-  } catch (e) {
-    if (e is HandlerException) {
-      return Response(
-        e.statusCode,
-        body: jsonEncode({'message': e.message}),
-        headers: {'Content-Type': 'application/json'},
-      );
-    }
+Middleware errorHandlingMiddleware() {
+  return (Handler innerHandler) {
+    return (Request request) async {
+      try {
+        return await innerHandler(request);
+      } catch (e) {
+        if (e is HandlerException) {
+          return Response(
+            e.statusCode,
+            body: jsonEncode({'message': e.message}),
+            headers: {'Content-Type': 'application/json'},
+          );
+        }
 
-    return Response.internalServerError(
-      body: jsonEncode({'message': 'Internal server error'}),
-      headers: {'Content-Type': 'application/json'},
-    );
-  }
+        return Response.internalServerError(
+          body: jsonEncode({'message': 'Internal server error'}),
+          headers: {'Content-Type': 'application/json'},
+        );
+      }
+    };
+  };
 }
 
 Middleware jwtMiddleware(String secret) {
