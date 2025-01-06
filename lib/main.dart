@@ -1,15 +1,14 @@
 import 'dart:convert';
 
-import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:postgres/postgres.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
 
-import 'exceptions/handler_exception.dart';
 import 'handler/user_handler.dart';
+import 'middlewares/error_handling_middleware.dart';
+import 'middlewares/jwt_middleware.dart';
 import 'migrations.dart';
-import 'models/jwt_payload.dart';
 import 'repository/user_repository.dart';
 import 'service/user_service.dart';
 
@@ -75,60 +74,4 @@ Future<Connection> connectToDatabase() async {
       sslMode: SslMode.disable,
     ),
   );
-}
-
-Middleware errorHandlingMiddleware() {
-  return (Handler innerHandler) {
-    return (Request request) async {
-      try {
-        return await innerHandler(request);
-      } catch (e) {
-        if (e is HandlerException) {
-          return Response(
-            e.statusCode,
-            body: jsonEncode({'message': e.message}),
-            headers: {'Content-Type': 'application/json'},
-          );
-        }
-
-        return Response.internalServerError(
-          body: jsonEncode({'message': 'Internal server error'}),
-          headers: {'Content-Type': 'application/json'},
-        );
-      }
-    };
-  };
-}
-
-Middleware jwtMiddleware(String secret) {
-  return (Handler innerHandler) {
-    return (Request request) async {
-      final authHeader = request.headers['Authorization'];
-      if (authHeader == null || !authHeader.startsWith('Bearer ')) {
-        return Response.forbidden(
-          jsonEncode({'message': 'Missing or invalid Authorization header'}),
-          headers: {'Content-Type': 'application/json'},
-        );
-      }
-
-      final token = authHeader.substring(7);
-      try {
-        final jwt = JWT.verify(token, SecretKey(secret));
-        final payload = JwtPayload.fromJson(jwt.payload);
-        request = request.change(
-          context: {
-            'jwt': jwt,
-            'userId': payload.userId,
-            'email': payload.email,
-          },
-        );
-        return await innerHandler(request);
-      } catch (e) {
-        return Response.forbidden(
-          jsonEncode({'message': 'Invalid token'}),
-          headers: {'Content-Type': 'application/json'},
-        );
-      }
-    };
-  };
 }
