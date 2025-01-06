@@ -40,7 +40,7 @@ final migrations = <Migration>[
           id SERIAL PRIMARY KEY,
           title TEXT NOT NULL,
           author TEXT NOT NULL,
-          price NUMERIC NOT NULL,
+          price INTEGER NOT NULL,
           user_id INTEGER NOT NULL REFERENCES users(id)
         );
       ''');

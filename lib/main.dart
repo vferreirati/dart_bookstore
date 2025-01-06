@@ -6,11 +6,14 @@ import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:dotenv/dotenv.dart';
 
+import 'handler/book_handler.dart';
 import 'handler/user_handler.dart';
 import 'middlewares/error_handling_middleware.dart';
 import 'middlewares/jwt_middleware.dart';
 import 'migrations.dart';
+import 'repository/book_repository.dart';
 import 'repository/user_repository.dart';
+import 'service/book_service.dart';
 import 'service/user_service.dart';
 
 void main() async {
@@ -38,6 +41,7 @@ void main() async {
 
   String secret = env['JWT_SECRET']!;
   final userHandler = UserHandler(UserService(UserRepository(connection)));
+  final bookHandler = BookHandler(BookService(BookRepository(connection)));
 
   final publicRouter = Router();
   publicRouter.post('/users', userHandler.createUser);
@@ -52,14 +56,17 @@ void main() async {
 
   final authenticatedRouter = Router();
   authenticatedRouter.get('/users', userHandler.getUsers);
+  authenticatedRouter.get('/books', bookHandler.getAllBooks);
+  authenticatedRouter.get('/books/<id>', bookHandler.getBookById);
+  authenticatedRouter.post('/books', bookHandler.createBook);
 
   final publicHandler = const Pipeline()
       .addMiddleware(errorHandlingMiddleware())
       .addHandler(publicRouter);
 
   final authenticatedHandler = const Pipeline()
-      .addMiddleware(errorHandlingMiddleware())
       .addMiddleware(jwtMiddleware(secret))
+      .addMiddleware(errorHandlingMiddleware())
       .addHandler(authenticatedRouter);
 
   final router = Cascade().add(publicHandler).add(authenticatedHandler).handler;
