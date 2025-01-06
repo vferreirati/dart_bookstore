@@ -1,0 +1,7 @@
+{
+  "watch": [
+    "lib"
+  ],
+  "ext": "dart",
+  "exec": "fvm dart run lib/main.dart"
+}
