@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dart_bookstore/exceptions/handler_exception.dart';
 import 'package:dart_bookstore/handler/user_handler.dart';
+import 'package:dart_bookstore/migrations.dart';
 import 'package:dart_bookstore/models/jwt_payload.dart';
 import 'package:dart_bookstore/repository/user_repository.dart';
 import 'package:dart_bookstore/service/user_service.dart';
@@ -17,6 +18,13 @@ void main() async {
     connection = await connectToDatabase();
   } catch (e) {
     print('Failed to connect to database: $e');
+    return;
+  }
+
+  try {
+    runMigrations(connection);
+  } catch (e) {
+    print('Failed to run migrations: $e');
     return;
   }
 
