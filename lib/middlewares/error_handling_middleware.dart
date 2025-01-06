@@ -18,6 +18,8 @@ Middleware errorHandlingMiddleware() {
           );
         }
 
+        print(e);
+
         return Response.internalServerError(
           body: jsonEncode({'message': 'Internal server error'}),
           headers: {'Content-Type': 'application/json'},

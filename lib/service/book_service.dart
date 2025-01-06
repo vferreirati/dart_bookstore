@@ -1,6 +1,7 @@
 import '../dto/create_book_request.dart';
 import '../exceptions/handler_exception.dart';
 import '../models/book.dart';
+import '../models/book_with_user.dart';
 import '../repository/book_repository.dart';
 
 class BookService {
@@ -8,7 +9,7 @@ class BookService {
 
   BookService(this._bookRepository);
 
-  Future<Book> getBookById(int id) async {
+  Future<BookWithUser> getBookById(int id) async {
     final book = await _bookRepository.getBookById(id);
     if (book == null) {
       throw NotFoundException(message: 'Book not found');
