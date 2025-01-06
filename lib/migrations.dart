@@ -68,7 +68,7 @@ Future<void> runMigrations(
         Sql.named(
           'INSERT INTO migrations (id, applied_at) VALUES (@id, current_timestamp)',
         ),
-        parameters: {'id': index},
+        parameters: {'id': index + 1},
       );
     } catch (e) {
       print('Failed to run ${migration.name}: $e');
