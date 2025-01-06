@@ -1,16 +1,17 @@
 import 'dart:convert';
 
-import 'package:dart_bookstore/exceptions/handler_exception.dart';
-import 'package:dart_bookstore/handler/user_handler.dart';
-import 'package:dart_bookstore/migrations.dart';
-import 'package:dart_bookstore/models/jwt_payload.dart';
-import 'package:dart_bookstore/repository/user_repository.dart';
-import 'package:dart_bookstore/service/user_service.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:postgres/postgres.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
+
+import 'exceptions/handler_exception.dart';
+import 'handler/user_handler.dart';
+import 'migrations.dart';
+import 'models/jwt_payload.dart';
+import 'repository/user_repository.dart';
+import 'service/user_service.dart';
 
 void main() async {
   late Connection connection;
@@ -95,8 +96,6 @@ Future<Response> safeEndpoint(
         headers: {'Content-Type': 'application/json'},
       );
     }
-
-    print(e);
 
     return Response.internalServerError(
       body: jsonEncode({'message': 'Internal server error'}),

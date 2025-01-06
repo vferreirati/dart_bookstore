@@ -1,11 +1,12 @@
 import 'package:crypt/crypt.dart';
-import 'package:dart_bookstore/dto/create_user_request.dart';
-import 'package:dart_bookstore/exceptions/handler_exception.dart';
-import 'package:dart_bookstore/models/auth_result.dart';
-import 'package:dart_bookstore/models/jwt_payload.dart';
-import 'package:dart_bookstore/models/user_without_password.dart';
-import 'package:dart_bookstore/repository/user_repository.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+
+import '../dto/create_user_request.dart';
+import '../exceptions/handler_exception.dart';
+import '../models/auth_result.dart';
+import '../models/jwt_payload.dart';
+import '../models/user_without_password.dart';
+import '../repository/user_repository.dart';
 
 class UserService {
   final UserRepository _userRepository;

@@ -1,6 +1,7 @@
-import 'package:dart_bookstore/models/user.dart';
-import 'package:dart_bookstore/models/user_without_password.dart';
 import 'package:postgres/postgres.dart';
+
+import '../models/user.dart';
+import '../models/user_without_password.dart';
 
 class UserRepository {
   final Connection _connection;

@@ -1,9 +1,10 @@
 import 'dart:convert';
 
-import 'package:dart_bookstore/dto/create_user_request.dart';
-import 'package:dart_bookstore/service/user_service.dart';
 import 'package:shelf/shelf.dart';
 import 'package:zod_validation/zod_validation.dart';
+
+import '../dto/create_user_request.dart';
+import '../service/user_service.dart';
 
 final _createUserRequest = {
   'name': Zod().min(4).max(100),
