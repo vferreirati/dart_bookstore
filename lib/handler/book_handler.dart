@@ -40,7 +40,7 @@ class BookHandler {
   }
 
   Future<Response> getAllBooks(Request request) async {
-    final books = await _bookService.getAllBooks();
+    final books = await _bookService.getAllBooks(request.userId);
 
     return Response.ok(
       jsonEncode(books.map((book) => book.toJson()).toList()),

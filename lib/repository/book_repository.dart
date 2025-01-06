@@ -22,9 +22,18 @@ class BookRepository {
     return Book.fromRow(res.first);
   }
 
-  Future<List<Book>> getAllBooks() async {
+  Future<List<Book>> getAllBooks(
+    int userId,
+  ) async {
     final res = await _connection.execute(
-      'SELECT id, title, author, price, user_id FROM books',
+      Sql.named('''
+        SELECT id, title, author, price, user_id
+        FROM books
+        WHERE user_id = @user_id
+      '''),
+      parameters: {
+        'user_id': userId,
+      },
     );
 
     return res.map(Book.fromRow).toList();

@@ -17,8 +17,10 @@ class BookService {
     return book;
   }
 
-  Future<List<Book>> getAllBooks() async {
-    return _bookRepository.getAllBooks();
+  Future<List<Book>> getAllBooks(
+    int userId,
+  ) async {
+    return _bookRepository.getAllBooks(userId);
   }
 
   Future<Book> createBook(
