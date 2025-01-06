@@ -33,7 +33,7 @@ void main() async {
   }
 
   try {
-    runMigrations(connection);
+    await runMigrations(connection);
   } catch (e) {
     print('Failed to run migrations: $e');
     return;

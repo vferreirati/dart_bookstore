@@ -17,7 +17,7 @@ class Migration {
 final migrations = <Migration>[
   Migration(
     name: 'Create users table',
-    up: (Connection connection) async {
+    up: (connection) async {
       await connection.execute('''
         CREATE TABLE users (
           id SERIAL PRIMARY KEY,
@@ -34,7 +34,7 @@ final migrations = <Migration>[
   ),
   Migration(
     name: 'Create books table',
-    up: (Connection connection) async {
+    up: (connection) async {
       await connection.execute('''
         CREATE TABLE books (
           id SERIAL PRIMARY KEY,
@@ -61,11 +61,14 @@ Future<void> runMigrations(
 
   for (final migration in migrationsToRun) {
     print('Running ${migration.name}');
+    final index = migrations.indexOf(migration);
     try {
       await migration.up(connection);
       await connection.execute(
-        Sql.named('INSERT INTO migrations (id) VALUES (@id)'),
-        parameters: {'id': migrationVersion + 1},
+        Sql.named(
+          'INSERT INTO migrations (id, applied_at) VALUES (@id, current_timestamp)',
+        ),
+        parameters: {'id': index},
       );
     } catch (e) {
       print('Failed to run ${migration.name}: $e');
@@ -79,6 +82,13 @@ Future<void> runMigrations(
 Future<int> _getCurrentMigrationVersion(
   Connection connection,
 ) async {
+  await connection.execute('''
+    CREATE TABLE IF NOT EXISTS migrations (
+      id SERIAL PRIMARY KEY,
+      applied_at TIMESTAMP DEFAULT current_timestamp
+    )
+  ''');
+
   final res = await connection.execute('SELECT MAX(id) FROM migrations');
-  return res.first.first as int;
+  return res.first.first as int? ?? 0;
 }
