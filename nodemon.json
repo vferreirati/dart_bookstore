@@ -1,6 +1,7 @@
 {
   "watch": [
-    "lib"
+    "lib",
+    ".env"
   ],
   "ext": "dart",
   "exec": "fvm dart run lib/main.dart"
